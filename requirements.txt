@@ -1,5 +1,15 @@
-transformers
-pydantic
-soundfile
-openai-whisper
-torch
+# Audio processing
+soundfile>=0.12.1
+openai-whisper>=20231117
+ffmpeg-python>=0.2.0
+
+# NLP and ML
+spacy>=3.7.2
+transformers>=4.35.2
+torch>=2.1.1
+pydantic>=2.5.2
+
+# Utilities
+python-dateutil>=2.8.2
+pathlib>=1.0.1
+typing-extensions>=4.8.0
