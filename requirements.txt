@@ -1,0 +1,5 @@
+transformers
+pydantic
+soundfile
+openai-whisper
+torch
