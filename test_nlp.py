@@ -6,6 +6,7 @@ from pathlib import Path
 import soundfile as sf
 import spacy
 import whisper
+import time
 
 # Load NLP model for text analysis
 try:
@@ -169,6 +170,7 @@ def analyze_audio(file_path: str) -> Summary:
     )
 
 def test_analyze_audio():
+    start_time = time.time()
     audio_file_path = "some_audio.wav"
     try:
         summary = analyze_audio(audio_file_path)
@@ -181,6 +183,8 @@ def test_analyze_audio():
         print("Speaker Count:", summary.speaker_count)
     except Exception as e:
         print("Error:", e)
+    end_time = time.time()
+    print(f"time taken: {end_time-start_time}")
 
 
 if __name__ == "__main__":
