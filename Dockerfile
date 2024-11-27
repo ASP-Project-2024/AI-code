@@ -20,9 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install Torch with CUDA support
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-# Install additional dependencies for Whisper and Transformers
-RUN pip install --no-cache-dir whisper transformers
-
 # Download spaCy model
 RUN python -m spacy download en_core_web_sm
 
