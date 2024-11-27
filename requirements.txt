@@ -1,7 +1,7 @@
 pydantic==1.10.9
 soundfile==0.12.1
 transformers==4.34.0
-whisper==1.1
 spacy==3.6.1
 torch==2.0.1
 torchaudio==2.0.1
+git+https://github.com/openai/whisper.git
