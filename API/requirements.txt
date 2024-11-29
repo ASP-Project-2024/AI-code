@@ -1,0 +1,6 @@
+flask==2.3.2
+transformers==4.34.0
+torch==2.0.1
+openai-whisper==20230314
+soundfile==0.12.1
+pydantic==1.10.11
