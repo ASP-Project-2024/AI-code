@@ -28,16 +28,19 @@ class Summary(BaseModel):
 class AudioProcessor:
     """Class to handle audio processing with multiple backends"""
 
+    # Function to the audio duration
     @staticmethod
     def get_audio_duration(file_path: str) -> float:
         data, samplerate = sf.read(file_path)
         return len(data) / samplerate
 
+    # Function to convert the audio files to .wav format if not already
     @staticmethod
     def convert_to_wav(input_path: str, output_path: str) -> None:
         data, samplerate = sf.read(input_path)
         sf.write(output_path, data, samplerate)
 
+    # Function to convert audio file to text
     @staticmethod
     def transcribe_audio(file_path: str) -> tuple[str, float]:
         model = whisper.load_model("base")
@@ -50,21 +53,24 @@ class AudioProcessor:
 class TextAnalyzer:
     """Class to handle text analysis"""
 
+    # Function to generate summary
     @staticmethod
     def generate_summary(text: str) -> str:
         inputs = bart_tokenizer(text, max_length=1024, return_tensors="pt", truncation=True)
         summary_ids = bart_model.generate(inputs.input_ids, max_length=1000, min_length=40, length_penalty=2.0, num_beams=4)
         return bart_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
+    # Function to extract topics from the text
     @staticmethod
     def extract_topics(text: str) -> List[str]:
         return ["Topic extraction is yet to be implemented"]
 
+    # Function to ge the speaker count from the text
     @staticmethod
     def estimate_speaker_count(text: str) -> int:
         return 1
 
-
+# The main function to anaylza the audio 
 def analyze_audio(file_path: str) -> Summary:
     file_ext = Path(file_path).suffix.lower()
     wav_path = file_path
