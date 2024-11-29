@@ -1,0 +1,22 @@
+services:
+  api:
+    build: .
+    image: asp_project/ai_code
+    environment:
+      PORT: 5000
+    ports:
+      - 5000:5000
+    entrypoint: ["gunicorn"]
+    command: ["-w", "4", "API.app:app"]
+    volumes:
+      - ai_uploads:/Project/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/healthcheck"]
+      interval: 1m30s
+      timeout: 15s
+      retries: 5
+      start_period: 5m
+      start_interval: 15s
+
+volumes:
+  ai_uploads:
