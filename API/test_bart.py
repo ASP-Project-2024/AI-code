@@ -6,7 +6,7 @@ import soundfile as sf
 import whisper
 import time
 from pathlib import Path
-
+from pydub import AudioSegment
 
 # Load BART tokenizer and model
 bart_model_name = "facebook/bart-large-cnn"
@@ -37,8 +37,13 @@ class AudioProcessor:
     # Function to convert the audio files to .wav format if not already
     @staticmethod
     def convert_to_wav(input_path: str, output_path: str) -> None:
-        data, samplerate = sf.read(input_path)
-        sf.write(output_path, data, samplerate)
+        try:
+            # Load audio file with pydub (supports webm, mp3, and more formats)
+            audio = AudioSegment.from_file(input_path)
+            # Export to WAV
+            audio.export(output_path, format="wav")
+        except Exception as e:
+            raise ValueError(f"Audio conversion failed: {str(e)}")
 
     # Function to convert audio file to text
     @staticmethod
@@ -57,7 +62,7 @@ class TextAnalyzer:
     @staticmethod
     def generate_summary(text: str) -> str:
         inputs = bart_tokenizer(text, max_length=1024, return_tensors="pt", truncation=True)
-        summary_ids = bart_model.generate(inputs.input_ids, max_length=1000, min_length=40, length_penalty=2.0, num_beams=4)
+        summary_ids = bart_model.generate(inputs.input_ids, max_length=1000, min_length=350, length_penalty=2.0, num_beams=4)
         return bart_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
     # Function to extract topics from the text
