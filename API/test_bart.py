@@ -4,14 +4,18 @@ from typing import List, Optional
 from datetime import datetime
 import soundfile as sf
 import whisper
-import time
+import torch
 from pathlib import Path
 from pydub import AudioSegment
+
+# Check if GPU is available
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {device}")
 
 # Load BART tokenizer and model
 bart_model_name = "facebook/bart-large-cnn"
 bart_tokenizer = BartTokenizer.from_pretrained(bart_model_name)
-bart_model = BartForConditionalGeneration.from_pretrained(bart_model_name)
+bart_model = BartForConditionalGeneration.from_pretrained(bart_model_name).to(device)
 
 
 class Summary(BaseModel):
@@ -28,7 +32,7 @@ class Summary(BaseModel):
 class AudioProcessor:
     """Class to handle audio processing with multiple backends"""
 
-    # Function to the audio duration
+    # Function to get the audio duration
     @staticmethod
     def get_audio_duration(file_path: str) -> float:
         data, samplerate = sf.read(file_path)
@@ -48,7 +52,8 @@ class AudioProcessor:
     # Function to convert audio file to text
     @staticmethod
     def transcribe_audio(file_path: str) -> tuple[str, float]:
-        model = whisper.load_model("base")
+        # Load Whisper model to GPU if available
+        model = whisper.load_model("base").to(device)
         result = model.transcribe(file_path)
         transcript = result["text"]
         confidence = result.get("confidence", 0.0)
@@ -61,8 +66,14 @@ class TextAnalyzer:
     # Function to generate summary
     @staticmethod
     def generate_summary(text: str) -> str:
-        inputs = bart_tokenizer(text, max_length=1024, return_tensors="pt", truncation=True)
-        summary_ids = bart_model.generate(inputs.input_ids, max_length=1000, min_length=350, length_penalty=2.0, num_beams=4)
+        inputs = bart_tokenizer(text, max_length=1024, return_tensors="pt", truncation=True).to(device)
+        summary_ids = bart_model.generate(
+            inputs.input_ids,
+            max_length=1000,
+            min_length=350,
+            length_penalty=2.0,
+            num_beams=4
+        )
         return bart_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
     # Function to extract topics from the text
@@ -70,12 +81,13 @@ class TextAnalyzer:
     def extract_topics(text: str) -> List[str]:
         return ["Topic extraction is yet to be implemented"]
 
-    # Function to ge the speaker count from the text
+    # Function to estimate the speaker count from the text
     @staticmethod
     def estimate_speaker_count(text: str) -> int:
         return 1
 
-# The main function to anaylza the audio 
+
+# The main function to analyze the audio
 def analyze_audio(file_path: str) -> Summary:
     file_ext = Path(file_path).suffix.lower()
     wav_path = file_path
