@@ -1,25 +1,33 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+FROM python:3.11-slim
 
-# Set environment variables to prevent Python from writing .pyc files and buffering stdout/stderr
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set working directory
+WORKDIR /Project
 
-# Set the working directory inside the container
-WORKDIR /app
+# Copy only the requirements.txt first (to take advantage of Docker caching)
+COPY requirements.txt .
 
-# Copy the requirements file into the container
-COPY requirements.txt /app/
+# Install system dependencies for audio processing, and other required libraries
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libsndfile1 \
+    ffmpeg \
+    git \
+    build-essential \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
+# Install Python dependencies from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
-COPY . /app/
+# Install PyTorch with CUDA support (ensure you're using compatible CUDA version with your environment)
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-# Expose the port Flask will run on
-EXPOSE 5000
+# Download the spaCy model (and potentially add more models if necessary)
+RUN python -m spacy download en_core_web_sm
 
-# Define the command to run the application
-CMD ["python", "app.py"]
+# Copy the rest of the application files into the container
+COPY . .
+
+# Create a directory for temporary audio files if it's required by your code
+RUN mkdir -p /Project/temp_audio_files
+
+# Command to run the app (adjust if your entry point is different)
+CMD ["python3", "main.py"]
