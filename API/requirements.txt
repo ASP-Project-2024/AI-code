@@ -1,9 +1,10 @@
+Flask==2.3.3
 pydantic==1.10.9
 soundfile==0.12.1
 transformers==4.34.0
 spacy==3.6.1
 torch==2.0.1
 torchaudio==2.0.1
-numpy>=1.26,<2.0
 git+https://github.com/openai/whisper.git
 pydub==0.25.1
+openai==0.27.0
