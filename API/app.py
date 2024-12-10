@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from test_bart import analyze_audio
+from summarization_openai import analyze_audio
 from pathlib import Path
 
 app = Flask(__name__)
@@ -23,6 +23,7 @@ def process_audio():
         # Prepare response data
         response_data = {
             "summary": summary.summary,
+            "key_points": summary.key_points,
             "topics_discussed": summary.topics_discussed,
             "duration": summary.duration,
             "transcript": summary.transcript,
