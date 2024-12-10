@@ -4,10 +4,11 @@ services:
     image: asp_project/ai_code
     environment:
       PORT: 5000
+      FLASK_OPENAI_API_KEY: ""
     ports:
       - 5000:5000
     entrypoint: ["gunicorn"]
-    command: ["-w", "4", "API.app:app"]
+    command: ["-w", "4", "app:app"]
     volumes:
       - ai_uploads:/Project/uploads
     healthcheck:
@@ -17,6 +18,9 @@ services:
       retries: 5
       start_period: 5m
       start_interval: 15s
+    env_file:
+      - path: ./secrets/open_ai.env
+        required: false
 
 volumes:
   ai_uploads:

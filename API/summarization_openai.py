@@ -9,7 +9,8 @@ from pydub import AudioSegment
 import re
 import openai
 
-openai.api_key = "API_KEY_HERE"
+# openai.api_key = "API_KEY_HERE"
+
 
 class Summary(BaseModel):
     key_points: List[str]
@@ -21,12 +22,13 @@ class Summary(BaseModel):
     confidence_score: float
     speaker_count: Optional[int]
 
+
 class AudioProcessor:
     @staticmethod
     def get_audio_duration(file_path: str) -> float:
         data, samplerate = sf.read(file_path)
         return len(data) / samplerate
-    
+
     @staticmethod
     def convert_to_wav(input_path: str, output_path: str) -> None:
         try:
@@ -43,13 +45,14 @@ class AudioProcessor:
         transcript = result["text"]
         confidence = result.get("confidence", 0.0)
         return transcript, confidence
-    
+
+
 class TextAnalyzer:
     @staticmethod
     def detect_questions_and_answers(transcript: str) -> List[str]:
         question_pattern = r"(?:^|[\.\?!]\s)(Who|What|When|Where|Why|How|Is|Are|Do|Does|Can|Could|Would|Should|Did)\b.*?\?"
         questions = re.findall(question_pattern, transcript, flags=re.IGNORECASE)
-        sentences = re.split(r'(?<=[.!?])\s+', transcript)
+        sentences = re.split(r"(?<=[.!?])\s+", transcript)
 
         qa_pairs = []
         question = None
@@ -61,7 +64,7 @@ class TextAnalyzer:
                 question = None
 
         return qa_pairs
-        
+
     @staticmethod
     def generate_summary(text: str) -> str:
         """
@@ -83,16 +86,19 @@ class TextAnalyzer:
             response = openai.ChatCompletion.create(
                 model="gpt-4",  # Use "gpt-4" or "gpt-3.5-turbo"
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant specialized in summarizing text."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant specialized in summarizing text.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.5,
-                max_tokens=500  # Adjust based on the summary length
+                max_tokens=500,  # Adjust based on the summary length
             )
-            return response['choices'][0]['message']['content'].strip()
+            return response["choices"][0]["message"]["content"].strip()
         except Exception as e:
             raise RuntimeError(f"Error generating summary: {str(e)}")
-        
+
     @staticmethod
     def extract_topics(text: str) -> List[str]:
         return ["Topic extraction is yet to be implemented"]
@@ -101,11 +107,12 @@ class TextAnalyzer:
     def estimate_speaker_count(text: str) -> int:
         return 1
 
+
 def analyze_audio(file_path: str) -> Summary:
     file_ext = Path(file_path).suffix.lower()
     wav_path = file_path
-    if file_ext != '.wav':
-        wav_path = str(Path(file_path).with_suffix('.wav'))
+    if file_ext != ".wav":
+        wav_path = str(Path(file_path).with_suffix(".wav"))
         AudioProcessor.convert_to_wav(file_path, wav_path)
 
     duration = AudioProcessor.get_audio_duration(wav_path)
@@ -116,10 +123,14 @@ def analyze_audio(file_path: str) -> Summary:
 
     key_points = []
     if chatgpt_summary:
-        key_points_section = re.search(r"1\.\s*\*\*Key Points\*\*:(.*?)\n", chatgpt_summary, re.DOTALL)
+        key_points_section = re.search(
+            r"1\.\s*\*\*Key Points\*\*:(.*?)\n", chatgpt_summary, re.DOTALL
+        )
         if key_points_section:
             key_points_text = key_points_section.group(1).strip()
-            key_points = [point.strip() for point in key_points_text.split("\n") if point.strip()]
+            key_points = [
+                point.strip() for point in key_points_text.split("\n") if point.strip()
+            ]
 
     return Summary(
         key_points=key_points,
@@ -129,5 +140,5 @@ def analyze_audio(file_path: str) -> Summary:
         interview_date=datetime.now(),
         transcript=transcript,
         confidence_score=confidence,
-        speaker_count=speaker_count
+        speaker_count=speaker_count,
     )
