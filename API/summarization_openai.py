@@ -9,7 +9,7 @@ from pydub import AudioSegment
 import re
 import openai
 
-openai.api_key = "API_KEY_HERE"
+openai.api_key = "OPENAI_KEY_HERE"
 
 class Summary(BaseModel):
     key_points: List[str]
@@ -70,10 +70,10 @@ class TextAnalyzer:
         try:
             prompt = (
                 "You are a highly skilled assistant helping to summarize interview transcripts. "
-                "The summary should be structured as follows:\n"
-                "1. **Key Points**: List around 1-10 important points (if any) talked about in the transcript. If the transcript is small, you can list fewer important points.\n"
+                "The summary should be structured as follows:"
+                "1. **Key Points**: List around 1-10 important points (if any) in the transcript. If the transcript is small, you can list fewer important points.\n"
                 "2. **Key Questions Asked**: List the main questions asked during the interview.\n"
-                "3. **Candidate's Responses**: Summarize the main points of the candidate's answers.\n"
+                "3. **Candidate's Responses**: Summarize the main points of the candidate's answers to all the questions.\n"
                 "4. **Key Strengths or Skills Identified**: Highlight any specific strengths or skills the candidate mentioned.\n"
                 "5. **Follow-Up Topics**: List any unresolved points or topics that might need further discussion.\n\n"
                 "Here is the transcript of the interview:\n"
@@ -87,7 +87,7 @@ class TextAnalyzer:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.5,
-                max_tokens=500  # Adjust based on the summary length
+                max_tokens=1000  # Adjust based on the summary length
             )
             return response['choices'][0]['message']['content'].strip()
         except Exception as e:
