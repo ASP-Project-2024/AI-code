@@ -23,7 +23,6 @@ def process_audio():
         # Prepare response data
         response_data = {
             "summary": summary.summary,
-            "key_points": summary.key_points,
             "topics_discussed": summary.topics_discussed,
             "duration": summary.duration,
             "transcript": summary.transcript,
